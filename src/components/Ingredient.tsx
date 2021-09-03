@@ -19,7 +19,7 @@ const ingredientStyle: CSSProperties = {
     border: "solid 2px grey",
     padding: "4px",
     borderRadius: "4px",
-    width: "70%",
+    width: "100%",
     height: "3rem",
 };
 
@@ -40,7 +40,8 @@ const Ingredient: React.FC<IngredientProps> = ({
             }
             const dragPosition = item.ingredient.position;
             const hoverPosition = data.position;
-            if (item.ingredient.preparation === data.preparation &&
+            const sameList: boolean = item.ingredient.preparation === data.preparation;
+            if (sameList &&
                 dragPosition === hoverPosition) {
                 return;
             }
@@ -64,12 +65,12 @@ const Ingredient: React.FC<IngredientProps> = ({
             // When dragging upwards, only move when the cursor is above 50%
 
             // Dragging downwards
-            if (dragPosition < hoverPosition && hoverClientY < hoverMiddleY) {
+            if (sameList && dragPosition < hoverPosition && hoverClientY < hoverMiddleY) {
                 return;
             }
 
             // Dragging upwards
-            if (dragPosition > hoverPosition && hoverClientY > hoverMiddleY) {
+            if (sameList && dragPosition > hoverPosition && hoverClientY > hoverMiddleY) {
                 return;
             }
 

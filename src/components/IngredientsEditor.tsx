@@ -243,7 +243,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                         })
                         .sort(sortByPosition)
                 );
-            }
+            } else
             if (
                 List.contains(pIngredients)(equalsById(source)) &&
                 List.contains(nPIngredients)(equalsById(target))
@@ -278,7 +278,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                         ])
                         .sort(sortByPosition)
                 );
-            }
+            } else
             if (
                 List.contains(nPIngredients)(equalsById(source)) &&
                 List.contains(pIngredients)(equalsById(target))
@@ -313,7 +313,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                         ])
                         .sort(sortByPosition)
                 );
-            }
+            } else
             if (
                 List.contains(pIngredients)(equalsById(source)) &&
                 List.contains(pIngredients)(equalsById(target))
@@ -348,36 +348,64 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
         [nPIngredients, pIngredients]
     );
 
-    const initialDropIngredientPrepared = (
+    const appendIngredientPrepared = (
         droppedIngredient: IngredientDef
     ) => {
-        if (pIngredients.length === 0) {
             removeIngredient(droppedIngredient.id);
             setPIngredients((prevState) =>
                 prevState.concat([
                     {
                         ...droppedIngredient,
-                        ...{ position: 1, preparation: true },
+                        ...{ position: prevState.length+1, preparation: true },
                     },
                 ])
             );
-        }
     };
-
-    const initialDropIngredientNotPrepared = (
+    const prependIngredientPrepared = (
         droppedIngredient: IngredientDef
     ) => {
-        if (nPIngredients.length === 0) {
+            removeIngredient(droppedIngredient.id);
+            setPIngredients((prevState) => {
+                let newState: IngredientDef[] =
+                    prevState.map((elem: IngredientDef) => ({...elem, ...{ position: elem.position+1 }}));
+                return [
+                    {
+                        ...droppedIngredient,
+                        ...{ position: prevState.length, preparation: true },
+                    },
+                ].concat(newState);
+            }
+            );
+    };
+
+    const appendIngredientNotPrepared = (
+        droppedIngredient: IngredientDef
+    ) => {
             removeIngredient(droppedIngredient.id);
             setNPIngredients((prevState) =>
                 prevState.concat([
                     {
                         ...droppedIngredient,
-                        ...{ position: 1, preparation: false },
+                        ...{ position: prevState.length+1, preparation: false },
                     },
                 ])
             );
-        }
+    };
+    const prependIngredientNotPrepared = (
+        droppedIngredient: IngredientDef
+    ) => {
+            removeIngredient(droppedIngredient.id);
+            setNPIngredients((prevState) => {
+                let newState: IngredientDef[] =
+                    prevState.map((elem: IngredientDef) => ({...elem, ...{ position: elem.position+1 }}));
+                return [
+                    {
+                        ...droppedIngredient,
+                        ...{ position: prevState.length, preparation: true },
+                    },
+                ].concat(newState);
+            }
+            );
     };
 
     return (
@@ -397,6 +425,11 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                             className="flex flex-column align-start"
                             id="not-prepared-items"
                         >
+                        <IngredientListLimit
+                        appendIngredient={prependIngredientNotPrepared}
+                        size={{ height: '1.5rem', width: '100%' }}
+                        text={""}
+                        />
                             {nPIngredients.map((ingr_def) => (
                                 <Ingredient
                                     key={ingr_def.id}
@@ -406,15 +439,14 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                     ingredient={ingr_def}
                                 />
                             ))}
-                            <IngredientPlaceholder
-                                dropIngredient={
-                                    initialDropIngredientNotPrepared
-                                }
-                                text={
+                            <IngredientListLimit
+                            appendIngredient={appendIngredientNotPrepared}
+                            size={{ height: '3rem', width: '100%' }}
+                            text={
                                     nPIngredients.length === 0
                                         ? "There are no normal ingredients yet. Drag some ingredients here!"
                                         : ""
-                                }
+                            }
                             />
                         </div>
                         <div className="list-header">Prepared Ingredients</div>
@@ -423,6 +455,11 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                             className="flex flex-column align-start"
                             id="prepared-items"
                         >
+                        <IngredientListLimit
+                        appendIngredient={prependIngredientPrepared}
+                        size={{ height: '1.5rem', width: '100%' }}
+                        text={""}
+                        />
                             {pIngredients.map((ingr_def) => (
                                 <Ingredient
                                     key={ingr_def.id}
@@ -432,13 +469,14 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                     ingredient={ingr_def}
                                 />
                             ))}
-                            <IngredientPlaceholder
-                                dropIngredient={initialDropIngredientPrepared}
-                                text={
+                            <IngredientListLimit
+                            appendIngredient={appendIngredientPrepared}
+                            size={{ height: '3rem', width: '100%' }}
+                            text={
                                     pIngredients.length === 0
                                         ? "There are no prepared ingredients yet. Drag some ingredients here to make them prepared!"
                                         : ""
-                                }
+                            }
                             />
                         </div>
                     </div>

@@ -1,9 +1,3 @@
-#ingredients-editor {
-    grid-template-columns: 35px 40px minmax(150px, 1fr) 5rem 4rem minmax(250px, 5fr) auto;
-    grid-auto-rows: fit-content();
-    grid-gap: 4px;
-}
-
 .list-header {
     font-size: 1.3rem;
     font-weight: bold;
