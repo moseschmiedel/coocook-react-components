@@ -1,113 +1,25 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { MaybeUtils, Just, Nothing } from "../util/Maybe";
 import { List } from "../util/List";
 import Ingredient from "./Ingredient";
-import IngredientPlaceholder from "./IngredientPlaceholder";
+import IngredientListLimit from "./IngredientListLimit";
 import { Card } from "react-bootstrap";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import axios from "axios";
-import { backend } from "../constants";
 import "./IngredientsEditor.css";
 import "../util/layout.css";
+import IO from "../util/io";
 
-import type { IngredientDef } from "../util/Definitions";
-import type { Maybe } from "../util/Maybe";
+import type { IngredientDef, ProjectDef } from "../util/Definitions";
 
 export interface IngredientsEditorProps {
-    projectId: number;
-    dishId?: number;
-    recipeId?: number;
+    project: ProjectDef;
 }
 
+
 const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
-    projectId,
-    dishId,
-    recipeId,
+    project
 }) => {
-    if ((dishId && recipeId) || (!dishId && !recipeId)) {
-        throw new Error("You must define either a dish ID or a recipe ID.");
-    }
 
-    const baseUrl: string = (() => {
-        if (dishId) {
-            return `${backend}/projects/${projectId}/dishes/${dishId}`;
-        } else if (recipeId) {
-            return `${backend}/projects/${projectId}/recipes/${recipeId}`;
-        } else {
-            return "";
-        }
-    })();
-
-    const getAllNormalIngredients: () => Maybe<IngredientDef[]> = () => {
-        let ingredients: Maybe<IngredientDef[]> = Nothing();
-        axios
-            .get(`${baseUrl}/ingredients`)
-            .then((res) => (ingredients = Just(res.data)));
-        MaybeUtils.map(
-            (ingrList: IngredientDef[]) =>
-                ingrList.map((ingr: IngredientDef) => ({
-                    ...ingr,
-                    ...{ beingDragged: false },
-                })),
-            ingredients
-        );
-
-        return ingredients;
-    };
-
-    const getAllPreparedIngredients: () => Maybe<IngredientDef[]> = () => {
-        let ingredients: Maybe<IngredientDef[]> = Nothing();
-        axios
-            .get(`${baseUrl}/prepared_ingredients`)
-            .then((res) => (ingredients = Just(res.data)));
-        MaybeUtils.map(
-            (ingrList: IngredientDef[]) =>
-                ingrList.map((ingr: IngredientDef) => ({
-                    ...ingr,
-                    ...{ beingDragged: false },
-                })),
-            ingredients
-        );
-
-        return ingredients;
-    };
-
-    const createIngredient: (ingredient: IngredientDef) => Maybe<number> = (
-        ingredient
-    ) => {
-        let ingredients_id: Maybe<number> = Nothing();
-        axios.post(`${baseUrl}/ingredients`, ingredient).then((res) => {
-            if (!isNaN(res.data)) {
-                ingredients_id = Just(res.data);
-            }
-        });
-        return ingredients_id;
-    };
-
-    const putIngredient: (ingredient: IngredientDef) => Maybe<{}> = (
-        ingredient
-    ) => {
-        try {
-            axios
-                .put(`${baseUrl}/ingredients/${ingredient.id}`, ingredient)
-                .then();
-            return Just({});
-        } catch (error) {
-            return Nothing();
-        }
-    };
-
-    const deleteIngredient: (ingredient: IngredientDef) => Maybe<{}> = (
-        ingredient
-    ) => {
-        try {
-            axios.delete(`${baseUrl}/ingredients/${ingredient.id}`).then();
-            return Just({});
-        } catch (error) {
-            return Nothing();
-        }
-    };
     const initialNonPreparedIngredients: IngredientDef[] = [
         {
             id: 1,
@@ -157,29 +69,23 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
             beingDragged: false,
         },
     ];
-    const [nPIngredients, setNPIngredients] = useState(
-        initialNonPreparedIngredients
-    );
+    const [nPIngredients, setNPIngredients] = useState<IngredientDef[]>([]);
+    const [pIngredients, setPIngredients] = useState<IngredientDef[]>([]);
 
-    const initialPreparedIngredients: IngredientDef[] = [];
-    const [pIngredients, setPIngredients] = useState(
-        initialPreparedIngredients
-    );
+    const fetchIngredients: () => Promise<void> = async () => {
+        const normalIngrs = (await IO.getAllNormalIngredients(project)) || [];
+        const preparedIngrs = (await IO.getAllPreparedIngredients(project)) || [];
+        setNPIngredients(normalIngrs);
+        setPIngredients(preparedIngrs);
+    };
+
+    useEffect(() => {
+        fetchIngredients();
+    }, []);
 
     // If `a` comes before `b` return should be negative
     const sortByPosition = (a: IngredientDef, b: IngredientDef) =>
         a.position - b.position;
-
-    useEffect(() => {
-        MaybeUtils.map(
-            (ingrs) => setNPIngredients(ingrs),
-            getAllNormalIngredients()
-        );
-        MaybeUtils.map(
-            (ingrs) => setPIngredients(ingrs),
-            getAllPreparedIngredients()
-        );
-    }, []);
 
     const removeIngredient = useCallback(
         (id: number) => {
@@ -414,6 +320,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                 <h3>Ingredients</h3>
             </Card.Header>
             <Card.Body>
+                <p>{JSON.stringify(IO.getAllNormalIngredients(project))}</p>
                 <DndProvider backend={HTML5Backend}>
                     <div
                         className="flex flex-column align-start"
