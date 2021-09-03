@@ -1,24 +1,18 @@
-# New Project
+# Coocook React Components
 
-> ✨ Bootstrapped with Create Snowpack App (CSA).
+Subproject of [Coocook](github.com/dboehmer/coocook)
 
-## Available Scripts
+## Development
+Clone this repository together with Coocook to build it correctly.
+Use this command when cloning Coocook:
+```sh
+git clone git@github.com:dboehmer/coocook --recurse-submodules
+```
 
-### npm start
+After the git completed it's work you can build the React Components by running
+```sh
+script/coocook_build_react
+```
+at the top of your Coocook repository.
 
-Runs the app in the development mode.
-Open http://localhost:8080 to view it in the browser.
-
-The page will reload if you make edits.
-You will also see any lint errors in the console.
-
-### npm run build
-
-Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
-
-**For the best production performance:** Add a build bundler plugin like [@snowpack/plugin-webpack](https://github.com/snowpackjs/snowpack/tree/main/plugins/plugin-webpack) or [snowpack-plugin-rollup-bundle](https://github.com/ParamagicDev/snowpack-plugin-rollup-bundle) to your `snowpack.config.json` config file.
-
-### Q: What about Eject?
-
-No eject needed! Snowpack guarantees zero lock-in, and CSA strives for the same.
+You can find the source code to edit for the React Components under `share/coocook-react-components`.
