@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "snowpack dev --config config/snowpack.config.js",
-    "build": "snowpack build --config config/snowpack.config.js",
+    "build": "snowpack build --config config/snowpack.config.js && rm build/index.*",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --check \"src/**/*.{js,jsx,ts,tsx}\"",
     "test": "web-test-runner \"src/**/*.test.tsx\" --config ./config/web-test-runner.config.js"
