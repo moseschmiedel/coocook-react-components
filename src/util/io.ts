@@ -11,33 +11,29 @@ const baseUrl: (project: ProjectDef) => string = (project) => {
     }
 };
 
-const getAllNormalIngredients: (project: ProjectDef) => Promise<IngredientDef[] | null> = async (project) => {
+const initialIngredientTransformation: (ingredient: IngredientDef) => IngredientDef = (ingredient) =>
+    ({
+        ...ingredient,
+        ...{
+            beingDragged: false,
+            units: [ingredient.current_unit, ...ingredient.units],
+        },
+
+    });
+
+const getAllIngredients: (project: ProjectDef) => Promise<IngredientDef[] | null> = async (project) => {
     try {
         const response = await (await fetch(`${baseUrl(project)}/ingredients`)).json();
-        console.log(response);
-        return response.data.map(
-            (ingrList: IngredientDef[]) =>
-                ingrList.map((ingr: IngredientDef) => ({
-                    ...ingr,
-                    ...{ beingDragged: false },
-                })));
+        const final = response.map(initialIngredientTransformation);
+        console.log('final')
+        console.log(final);
+        return final;
     } catch(err) {
+        console.error(err);
         return null;
     }
 };
-const getAllPreparedIngredients: (project: ProjectDef) => Promise<IngredientDef[] | null> = async (project) => {
-    try {
-        const response = await (await fetch(`${baseUrl(project)}/ingredients`)).json();
-        return response.data.map(
-            (ingrList: IngredientDef[]) =>
-                ingrList.map((ingr: IngredientDef) => ({
-                    ...ingr,
-                    ...{ beingDragged: false },
-                })));
-    } catch(err) {
-        return null;
-    }
-};
+
 const createIngredient: (project: ProjectDef, ingredient: IngredientDef) => Promise<number | null> = async (
     project,
     ingredient
@@ -61,7 +57,7 @@ const createIngredient: (project: ProjectDef, ingredient: IngredientDef) => Prom
         return null;
     }
 };
-const putIngredient: (project: ProjectDef, ingredient: IngredientDef) => Promise<number | null> = async (
+const updateIngredient: (project: ProjectDef, ingredient: IngredientDef) => Promise<number | null> = async (
     project,
     ingredient
 ) => {
@@ -97,10 +93,9 @@ const deleteIngredient: (project: ProjectDef, ingredient: IngredientDef) => Prom
 };
 
 const IO = {
-    getAllNormalIngredients: getAllNormalIngredients,
-    getAllPreparedIngredients: getAllPreparedIngredients,
+    getAllIngredients: getAllIngredients,
     createIngredient: createIngredient,
-    putIngredient: putIngredient,
+    updateIngredient: updateIngredient,
     deleteIngredient: deleteIngredient,
 };
 

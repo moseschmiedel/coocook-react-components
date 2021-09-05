@@ -20,61 +20,13 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
     project
 }) => {
 
-    const initialNonPreparedIngredients: IngredientDef[] = [
-        {
-            id: 1,
-            position: 1,
-            preparation: false,
-            article: "Öl",
-            value: 2,
-            currentUnit: 1,
-            units: [
-                { id: 1, name: "l (Liter)" },
-                { id: 3, name: "kg (Kilogramm)" },
-                { id: 4, name: "ml (Milliliter)" },
-            ],
-            comment: "",
-            beingDragged: false,
-        },
-        {
-            id: 3,
-            position: 3,
-            preparation: false,
-            article: "Kartoffeln",
-            value: 2,
-            currentUnit: 1,
-            units: [
-                { id: 1, name: "l (Liter)" },
-                { id: 3, name: "kg (Kilogramm)" },
-                { id: 4, name: "ml (Milliliter)" },
-            ],
-            comment: "",
-            beingDragged: false,
-        },
-        {
-            id: 2,
-            position: 2,
-            preparation: false,
-            article: "Zwiebeln",
-            value: 4,
-            currentUnit: 2,
-            units: [
-                { id: 2, name: "Stück" },
-                { id: 1, name: "l (Liter)" },
-                { id: 3, name: "kg (Kilogramm)" },
-                { id: 4, name: "ml (Milliliter)" },
-            ],
-            comment:
-                "roteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroteroterote",
-            beingDragged: false,
-        },
-    ];
     const [nPIngredients, setNPIngredients] = useState<IngredientDef[]>([]);
     const [pIngredients, setPIngredients] = useState<IngredientDef[]>([]);
 
     const fetchIngredients: () => Promise<void> = async () => {
-        const normalIngrs = (await IO.getAllNormalIngredients(project)) || [];
-        const preparedIngrs = (await IO.getAllPreparedIngredients(project)) || [];
+        const allIngrs = (await IO.getAllIngredients(project)) || [];
+        const normalIngrs = allIngrs.filter(i => i.prepare === false);
+        const preparedIngrs = allIngrs.filter(i => i.prepare === true);
         setNPIngredients(normalIngrs);
         setPIngredients(preparedIngrs);
     };
@@ -83,9 +35,6 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
         fetchIngredients();
     }, []);
 
-    // If `a` comes before `b` return should be negative
-    const sortByPosition = (a: IngredientDef, b: IngredientDef) =>
-        a.position - b.position;
 
     const removeIngredient = useCallback(
         (id: number) => {
@@ -115,9 +64,6 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
         [nPIngredients, pIngredients]
     );
 
-    const equalsById = (ingr1: IngredientDef) => (ingr2: IngredientDef) =>
-        ingr1.id === ingr2.id;
-
     const moveIngredient = useCallback(
         (source: IngredientDef, target: IngredientDef) => {
             if (
@@ -132,7 +78,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                     ...elem,
                                     ...{
                                         position: target.position,
-                                        preparation: false,
+                                        prepare: false,
                                     },
                                 };
                             } else if (elem.position === target.position) {
@@ -140,7 +86,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                     ...elem,
                                     ...{
                                         position: source.position,
-                                        preparation: false,
+                                        prepare: false,
                                     },
                                 };
                             } else {
@@ -158,7 +104,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                  * We want to put an Ingredient from the prepared Ingredients List in the not prepared List,
                  * to do this we need to find the place in nPIngredients, where the Ingredient should be inserted
                  * and increase the position of all Ingredients that come after that position
-                 * The `preparation` property of the ingredient must be updated because, the ingredient is now not prepared
+                 * The `prepare` property of the ingredient must be updated because, the ingredient is now not prepared
                  */
                 removeIngredient(source.id);
                 setNPIngredients((prevState) =>
@@ -178,7 +124,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                 ...source,
                                 ...{
                                     position: target.position,
-                                    preparation: false,
+                                    prepare: false,
                                 },
                             },
                         ])
@@ -193,7 +139,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                  * We want to put an Ingredient from the prepared Ingredients List in the not prepared List,
                  * to do this we need to find the place in nPIngredients, where the Ingredient should be inserted
                  * and increase the position of all Ingredients that come after that position
-                 * The `preparation` property of the ingredient must be updated because, the ingredient is now prepared
+                 * The `prepare` property of the ingredient must be updated because, the ingredient is now prepared
                  */
                 removeIngredient(source.id);
                 setPIngredients((prevState) =>
@@ -213,7 +159,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                 ...source,
                                 ...{
                                     position: target.position,
-                                    preparation: true,
+                                    prepare: true,
                                 },
                             },
                         ])
@@ -232,7 +178,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                     ...elem,
                                     ...{
                                         position: target.position,
-                                        preparation: true,
+                                        prepare: true,
                                     },
                                 };
                             } else if (elem.position === target.position) {
@@ -240,7 +186,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                                     ...elem,
                                     ...{
                                         position: source.position,
-                                        preparation: true,
+                                        prepare: true,
                                     },
                                 };
                             } else {
@@ -262,7 +208,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                 prevState.concat([
                     {
                         ...droppedIngredient,
-                        ...{ position: prevState.length+1, preparation: true },
+                        ...{ position: prevState.length+1, prepare: true },
                     },
                 ])
             );
@@ -277,7 +223,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                 return [
                     {
                         ...droppedIngredient,
-                        ...{ position: prevState.length, preparation: true },
+                        ...{ position: prevState.length, prepare: true },
                     },
                 ].concat(newState);
             }
@@ -292,7 +238,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                 prevState.concat([
                     {
                         ...droppedIngredient,
-                        ...{ position: prevState.length+1, preparation: false },
+                        ...{ position: prevState.length+1, prepare: false },
                     },
                 ])
             );
@@ -307,7 +253,7 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                 return [
                     {
                         ...droppedIngredient,
-                        ...{ position: prevState.length, preparation: true },
+                        ...{ position: prevState.length, prepare: true },
                     },
                 ].concat(newState);
             }
@@ -320,7 +266,6 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
                 <h3>Ingredients</h3>
             </Card.Header>
             <Card.Body>
-                <p>{JSON.stringify(IO.getAllNormalIngredients(project))}</p>
                 <DndProvider backend={HTML5Backend}>
                     <div
                         className="flex flex-column align-start"
@@ -392,5 +337,12 @@ const IngredientsEditor: React.FC<IngredientsEditorProps> = ({
         </Card>
     );
 };
+
+// If `a` comes before `b` return should be negative
+const sortByPosition = (a: IngredientDef, b: IngredientDef) =>
+    a.position - b.position;
+
+const equalsById = (ingr1: IngredientDef) => (ingr2: IngredientDef) =>
+    ingr1.id === ingr2.id;
 
 export default IngredientsEditor;

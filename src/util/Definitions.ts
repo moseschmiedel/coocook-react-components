@@ -4,7 +4,7 @@ export interface IngredientDef {
     prepare: boolean;
     article: ArticleDef;
     value: number;
-    currentUnit: number;
+    current_unit: UnitDef;
     units: UnitDef[];
     comment: string;
     beingDragged: boolean;
@@ -17,7 +17,8 @@ export interface ArticleDef {
 
 export interface UnitDef {
     id: number;
-    name: string;
+    short_name: string;
+    long_name: string;
 }
 
 export interface ProjectDef {

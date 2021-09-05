@@ -40,7 +40,7 @@ const Ingredient: React.FC<IngredientProps> = ({
             }
             const dragPosition = item.ingredient.position;
             const hoverPosition = data.position;
-            const sameList: boolean = item.ingredient.preparation === data.preparation;
+            const sameList: boolean = item.ingredient.prepare === data.prepare;
             if (sameList &&
                 dragPosition === hoverPosition) {
                 return;
@@ -122,7 +122,7 @@ const Ingredient: React.FC<IngredientProps> = ({
                 <DragIndicator fontSize="large" style={{ color: "grey" }} />
             </div>
             {/* Title */}
-            <div style={{ minWidth: "8rem", flex: "none" }}>{data.article}</div>
+            <div style={{ minWidth: "8rem", flex: "none" }}>{data.article.name}</div>
             {/* Value */}
             <div style={{ width: "4.6rem", flex: "none" }}>
                 <Form>
@@ -147,19 +147,19 @@ const Ingredient: React.FC<IngredientProps> = ({
             <div style={{ width: "6.5rem", flex: "none" }}>
                 <Form.Control
                     as="select"
-                    defaultValue={data.currentUnit}
+                    defaultValue={data.current_unit.id}
                     onChange={(e) => {
                         onChange(
                             data.id,
                             Object.assign(data, {
-                                currentUnit: Number.parseInt(e.target.value),
+                                current_unit: data.units.find(u => u.id === Number.parseInt(e.target.value))
                             })
                         );
                     }}
                 >
                     {data.units.map((unit) => (
                         <option key={unit.id} value={unit.id}>
-                            {unit.name}
+                            {unit.short_name} ({unit.long_name})
                         </option>
                     ))}
                 </Form.Control>
