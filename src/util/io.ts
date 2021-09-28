@@ -39,17 +39,17 @@ const createIngredient: (project: ProjectDef, ingredient: IngredientDef) => Prom
     ingredient
 ) => {
     try {
-        const response = await fetch(`${baseUrl(project)}/ingredients`, {
+        const response = await fetch(`${baseUrl(project)}/ingredient/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(ingredient),
+            body: JSON.stringify({ ingredient: ingredient}),
         });
 
-        const id = (await response.json()).data;
-        if (!isNaN(id)) {
-            return id;
+        const res = await response.json();
+        if (!isNaN(res.id)) {
+            return res.id;
         } else {
             return null;
         }
@@ -62,12 +62,12 @@ const updateIngredient: (project: ProjectDef, ingredient: IngredientDef) => Prom
     ingredient
 ) => {
     try {
-        const response = await fetch(`${baseUrl(project)}/ingredients/${ingredient.id}`, {
-            method: 'PUT',
+        const response = await fetch(`${baseUrl(project)}/ingredient/update`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(ingredient),
+            body: JSON.stringify({ingredient: ingredient }),
         });
 
         await response.json();
@@ -81,8 +81,9 @@ const deleteIngredient: (project: ProjectDef, ingredient: IngredientDef) => Prom
     ingredient
 ) => {
     try {
-        const response = await fetch(`${baseUrl(project)}/ingredients/${ingredient.id}`, {
-            method: 'DELETE',
+        const response = await fetch(`${baseUrl(project)}/ingredient/delete`, {
+            method: 'POST',
+            body: JSON.stringify({id: ingredient.id});
         });
 
         await response.json();
